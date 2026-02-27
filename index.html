@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0C4A6E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="帛琉五天四夜行前打包清單，互動式勾選、自訂增刪項目">
+<title>帛琉行前打包清單</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   Variables
+   ═══════════════════════════════════════ */
+:root {
+  --primary: #0369A1;
+  --primary-soft: #E0F2FE;
+  --primary-mid: #7DD3FC;
+  --success: #16A34A;
+  --success-soft: #DCFCE7;
+  --danger: #DC2626;
+  --danger-soft: #FEE2E2;
+  --amber: #D97706;
+  --amber-soft: #FEF3C7;
+  --text: #0F172A;
+  --text-2: #475569;
+  --text-3: #94A3B8;
+  --bg: #F1F5F9;
+  --card: #FFFFFF;
+  --border: #E2E8F0;
+  --border-soft: #F1F5F9;
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-2: 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-3: 0 8px 30px rgba(0,0,0,0.1);
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font: 'Inter', 'Noto Sans TC', -apple-system, system-ui, sans-serif;
+}
+/* ═══════════════════════════════════════
+   Reset
+   ═══════════════════════════════════════ */
+*,*::before,*::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+button { font-family: var(--font); }
+
+/* ═══════════════════════════════════════
+   Hero
+   ═══════════════════════════════════════ */
+.hero {
+  background: linear-gradient(135deg, #0C4A6E 0%, #0284C7 55%, #38BDF8 100%);
+  color: #fff;
+  padding: 2.5rem 1.5rem 2.2rem;
+  text-align: center;
+  position: relative;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: -5%; right: -5%;
+  height: 28px;
+  background: var(--bg);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.hero-flag { font-size: 2.8rem; margin-bottom: 0.3rem; }
+.hero h1 { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.01em; }
+.hero-sub { font-size: 0.8rem; opacity: 0.8; margin-top: 0.25rem; font-weight: 400; }
+
+/* ═══════════════════════════════════════
+   Sticky Progress
+   ═══════════════════════════════════════ */
+.progress-sentinel { height: 1px; margin-top: -1px; }
+.progress-wrap {
+  max-width: 540px;
+  margin: -0.75rem auto 1rem;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 50;
+  transition: all 0.3s var(--ease);
+}
+.progress-wrap.stuck {
+  position: sticky;
+  top: 0;
+  margin-top: 0;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.progress-wrap.stuck .progress-card {
+  border-radius: var(--r-sm);
+  padding: 0.6rem 1rem;
+  box-shadow: var(--shadow-3);
+}
+.progress-wrap.stuck .progress-pct { font-size: 0.95rem; margin-top: 0.15rem; }
+.progress-card {
+  background: var(--card);
+  border-radius: var(--r-md);
+  padding: 0.9rem 1.1rem;
+  box-shadow: var(--shadow-2);
+  border: 1px solid rgba(255,255,255,0.7);
+  transition: all 0.3s var(--ease);
+}
+.progress-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.progress-label { font-size: 0.78rem; color: var(--text-2); font-weight: 500; }
+.progress-count { font-size: 0.78rem; font-weight: 700; color: var(--primary); }
+.progress-track {
+  width: 100%; height: 7px;
+  background: var(--primary-soft);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-mid));
+  border-radius: 99px;
+  transition: width 0.5s var(--bounce);
+}
+.progress-fill.done { background: linear-gradient(90deg, var(--success), #4ADE80); }
+.progress-pct {
+  text-align: center;
+  font-size: 1.4rem; font-weight: 900;
+  color: var(--primary);
+  margin-top: 0.3rem;
+  transition: all 0.25s var(--ease);
+}
+.progress-pct.done { color: var(--success); }
+
+/* ═══════════════════════════════════════
+   Container
+   ═══════════════════════════════════════ */
+.container { max-width: 540px; margin: 0 auto; padding: 0 0.75rem 5rem; }
+
+/* ═══════════════════════════════════════
+   Category
+   ═══════════════════════════════════════ */
+.cat {
+  margin-bottom: 0.6rem;
+  border-radius: var(--r-md);
+  background: var(--card);
+  box-shadow: var(--shadow-1);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.cat-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s var(--ease);
+}
+.cat-head:active { background: var(--primary-soft); }
+.cat-left { display: flex; align-items: center; gap: 0.55rem; }
+.cat-icon { font-size: 1.15rem; }
+.cat-title { font-weight: 700; font-size: 0.9rem; }
+.cat-right { display: flex; align-items: center; gap: 0.45rem; }
+.cat-badge {
+  font-size: 0.68rem; font-weight: 700;
+  padding: 0.12rem 0.5rem;
+  border-radius: 99px;
+  background: var(--primary-soft); color: var(--primary);
+  transition: all 0.25s var(--ease);
+}
+.cat-badge.done { background: var(--success-soft); color: var(--success); }
+.cat-arrow {
+  width: 18px; height: 18px;
+  color: var(--text-3);
+  transition: transform 0.3s var(--ease);
+  flex-shrink: 0;
+}
+.cat.closed .cat-arrow { transform: rotate(-90deg); }
+
+/* Collapse animation */
+.cat-body {
+  overflow: hidden;
+  transition: max-height 0.35s var(--ease), opacity 0.25s var(--ease);
+  border-top: 1px solid var(--border-soft);
+}
+.cat.closed .cat-body { max-height: 0 !important; opacity: 0; border-top-color: transparent; }
+
+/* ═══════════════════════════════════════
+   Item
+   ═══════════════════════════════════════ */
+.item {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+  position: relative;
+}
+.item:last-of-type { border-bottom: none; }
+.item.star { border-left: 3px solid var(--amber); }
+.item.checked { background: var(--success-soft); }
+.item.checked.star { border-left-color: var(--success); }
+.item.checked .i-name { text-decoration: line-through; color: var(--text-3); }
+.item.checked .i-note { opacity: 0.5; }
+
+/* Swipe delete */
+.item-swipe-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.item-swipe-bg {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 80px;
+  background: var(--danger);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 0.75rem; font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.item-swipe-wrap.swiping .item-swipe-bg { opacity: 1; }
+
+/* Remove animation */
+.item-swipe-wrap.removing {
+  animation: collapseOut 0.3s var(--ease) forwards;
+}
+@keyframes collapseOut {
+  0% { max-height: 80px; opacity: 1; }
+  100% { max-height: 0; opacity: 0; overflow: hidden; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.item-swipe-wrap.adding { animation: fadeUp 0.25s var(--ease); }
+
+/* ═══════════════════════════════════════
+   Checkbox
+   ═══════════════════════════════════════ */
+.ck {
+  width: 22px; height: 22px; min-width: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+  transition: all 0.2s var(--bounce);
+}
+.ck svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(0); transition: all 0.2s var(--bounce); }
+.item.checked .ck { background: var(--success); border-color: var(--success); }
+.item.checked .ck svg { opacity: 1; transform: scale(1); }
+
+/* ═══════════════════════════════════════
+   Item content
+   ═══════════════════════════════════════ */
+.i-body { flex: 1; min-width: 0; }
+.i-name { font-size: 0.87rem; font-weight: 500; transition: all 0.2s var(--ease); }
+.i-name .star-dot { color: var(--amber); margin-right: 0.15rem; }
+.i-note { font-size: 0.72rem; color: var(--text-2); margin-top: 0.05rem; line-height: 1.4; transition: opacity 0.2s; }
+.i-right { display: flex; align-items: center; gap: 0.35rem; margin-top: 2px; flex-shrink: 0; }
+.i-qty {
+  font-size: 0.67rem; font-weight: 600;
+  color: var(--primary); background: var(--primary-soft);
+  padding: 0.1rem 0.4rem; border-radius: 4px;
+  white-space: nowrap;
+}
+.i-del {
+  width: 26px; height: 26px; border: none; background: none;
+  color: var(--text-3); cursor: pointer; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: all 0.2s var(--ease); flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.i-del svg { width: 14px; height: 14px; }
+.item:hover .i-del { opacity: 1; }
+.i-del:hover { background: var(--danger-soft); color: var(--danger); }
+@media (hover: none) { .i-del { opacity: 0.4; } }
+
+/* ═══════════════════════════════════════
+   Add item
+   ═══════════════════════════════════════ */
+.add-row {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s var(--ease);
+  border-top: 1px dashed var(--border);
+}
+.add-row:active { background: var(--primary-soft); }
+.add-plus {
+  width: 22px; height: 22px; min-width: 22px;
+  border-radius: 6px;
+  border: 2px dashed var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-3); font-size: 0.9rem; font-weight: 500;
+  transition: all 0.2s var(--ease);
+}
+.add-row:hover .add-plus, .add-row:active .add-plus { border-color: var(--primary); color: var(--primary); }
+.add-label { font-size: 0.8rem; color: var(--text-3); font-weight: 500; }
+.add-row:hover .add-label, .add-row:active .add-label { color: var(--primary); }
+
+.add-form {
+  display: flex; gap: 0.4rem; padding: 0.5rem 0.9rem;
+  border-top: 1px solid var(--primary-soft);
+  background: var(--primary-soft);
+  align-items: center;
+  animation: fadeUp 0.2s var(--ease);
+}
+.add-form input {
+  flex: 1; min-width: 0;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 0.4rem 0.65rem; font-size: 0.84rem;
+  font-family: var(--font); background: #fff; color: var(--text);
+  outline: none; transition: border-color 0.2s;
+}
+.add-form input:focus { border-color: var(--primary); }
+.add-form input::placeholder { color: var(--text-3); }
+.add-btn {
+  padding: 0.4rem 0.7rem; border: none; border-radius: var(--r-sm);
+  font-size: 0.78rem; font-weight: 600; cursor: pointer;
+  transition: all 0.15s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.add-btn.ok { background: var(--primary); color: #fff; }
+.add-btn.ok:active { filter: brightness(0.9); }
+.add-btn.no { background: var(--border); color: var(--text-2); }
+
+/* ═══════════════════════════════════════
+   Info cards
+   ═══════════════════════════════════════ */
+.info {
+  margin-bottom: 0.6rem;
+  border-radius: var(--r-md);
+  padding: 0.9rem 1rem;
+  border: 1px solid;
+}
+.info.red { background: var(--danger-soft); border-color: #FECACA; }
+.info.yellow { background: var(--amber-soft); border-color: #FDE68A; }
+.info-title { font-weight: 800; font-size: 0.9rem; margin-bottom: 0.4rem; }
+.info.red .info-title { color: var(--danger); }
+.info.yellow .info-title { color: #92400E; }
+.info-line {
+  font-size: 0.78rem; padding: 0.15rem 0;
+  display: flex; gap: 0.35rem; align-items: flex-start; line-height: 1.5;
+}
+.info.red .info-line { color: #7F1D1D; }
+.info.yellow .info-line { color: #78350F; }
+
+/* ═══════════════════════════════════════
+   Toast
+   ═══════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 1.5rem; left: 50%;
+  transform: translateX(-50%) translateY(calc(100% + 2rem));
+  background: var(--text); color: #fff;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--r-sm);
+  font-size: 0.8rem; font-weight: 500;
+  display: flex; align-items: center; gap: 0.7rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  z-index: 1000; white-space: nowrap;
+  opacity: 0;
+  transition: all 0.35s var(--bounce);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast-undo {
+  background: none; border: none;
+  color: var(--primary-mid); font-weight: 700; font-size: 0.8rem;
+  cursor: pointer; font-family: var(--font);
+  padding: 0.15rem 0.35rem; border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════
+   Bottom actions
+   ═══════════════════════════════════════ */
+.actions {
+  display: flex; gap: 0.5rem; justify-content: center;
+  margin-top: 1.2rem; flex-wrap: wrap;
+}
+.act-btn {
+  padding: 0.5rem 1.2rem;
+  background: none; border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-3); font-size: 0.78rem; font-weight: 500;
+  cursor: pointer; font-family: var(--font);
+  transition: all 0.2s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.act-btn:hover { border-color: var(--text-3); color: var(--text-2); }
+.act-btn.warn:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ═══════════════════════════════════════
+   Footer
+   ═══════════════════════════════════════ */
+.footer {
+  text-align: center;
+  padding: 1.5rem 1rem 2.5rem;
+  font-size: 0.7rem; color: var(--text-3);
+  line-height: 1.9;
+}
+
+/* ═══════════════════════════════════════
+   Confetti
+   ═══════════════════════════════════════ */
+.confetti-box { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+.confetti-p {
+  position: absolute; top: -10px;
+  animation: fall 2.5s ease-in forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) scale(0.2); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════
+   Empty state
+   ═══════════════════════════════════════ */
+.empty-state {
+  padding: 1.2rem 0.9rem;
+  text-align: center;
+  color: var(--text-3);
+  font-size: 0.82rem;
+}
+.empty-state span { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+
+/* ═══════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════ */
+@media (max-width: 400px) {
+  .hero { padding: 2rem 1.25rem 1.8rem; }
+  .hero h1 { font-size: 1.4rem; }
+  .hero-flag { font-size: 2.2rem; }
+  .container { padding: 0 0.5rem 5rem; }
+}
+
+/* ═══════════════════════════════════════
+   Print
+   ═══════════════════════════════════════ */
+@media print {
+  .hero { padding: 0.75rem; background: #0369A1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .hero::after { display: none; }
+  .progress-wrap,.actions,.add-row,.add-form,.i-del,.toast,.footer { display: none !important; }
+  .cat { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  .item { break-inside: avoid; }
+  body { background: #fff; }
+  .cat-body { max-height: none !important; opacity: 1 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-flag" role="img" aria-label="帛琉國旗">🇵🇼</div>
+  <h1>帛琉行前打包清單</h1>
+  <p class="hero-sub">2026/02/28 — 03/04 ｜ 五天四夜 ｜ 點擊勾選</p>
+</div>
+
+<div class="progress-sentinel" id="sentinel"></div>
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-card">
+    <div class="progress-row">
+      <span class="progress-label">打包進度</span>
+      <span class="progress-count" id="pCount">0 / 0</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="pFill"></div></div>
+    <div class="progress-pct" id="pPct">0%</div>
+  </div>
+</div>
+
+<div class="container" id="app"></div>
+
+<div class="toast" id="toast">
+  <span id="toastMsg"></span>
+  <button class="toast-undo" onclick="undoDelete()">復原</button>
+</div>
+
+<div class="footer">
+  中華知識經濟協會 × 中華中道領導文化總會<br>帛琉企業發展論壇<br>
+  清單僅供參考，請依個人需求調整
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   Data
+   ═══════════════════════════════════════ */
+const DEFAULT = [
+  { icon:'📁', title:'證件 & 錢', items:[
+    {n:'護照正本',t:'效期需滿 6 個月',q:'1'},
+    {n:'護照影本',t:'一份隨身、一份放行李箱',q:'2'},
+    {n:'護照電子檔',t:'拍照存手機雲端備份',q:''},
+    {n:'身分證',t:'',q:'1'},
+    {n:'電子入境表格列印',t:'palautravel.pw 填寫後印出 QR Code',q:'1'},
+    {n:'美金現金',t:'帛琉刷卡不普遍，現金為主；備 $1/$5 零鈔付小費',q:'$300–500'},
+    {n:'信用卡 VISA / Master',t:'備用',q:'2 張'},
+  ]},
+  { icon:'🏖️', title:'出海服裝（Day 2–3）', items:[
+    {n:'泳衣 / 泳褲',t:'連兩天出海，一套會曬不乾',q:'2 套'},
+    {n:'防曬衣 Rash Guard',t:'比擦防曬更有效，兼防水母刮傷',q:'1',s:1},
+    {n:'海灘褲 / 速乾短褲',t:'',q:'2'},
+    {n:'拖鞋 / 涼鞋',t:'出海必穿，不要穿布鞋上船',q:'1'},
+  ]},
+  { icon:'👔', title:'論壇 & 拜會服裝（Day 4）', items:[
+    {n:'Smart Casual 襯衫 + 長褲',t:'論壇、大使館拜會、元宵晚宴通用',q:'1 套'},
+    {n:'休閒皮鞋 / 乾淨布鞋',t:'',q:'1'},
+  ]},
+  { icon:'👕', title:'日常服裝', items:[
+    {n:'T-shirt / 短袖',t:'',q:'3–4'},
+    {n:'短褲',t:'',q:'2'},
+    {n:'內衣褲',t:'',q:'5 套'},
+    {n:'襪子',t:'',q:'3 雙'},
+    {n:'運動服 + 運動鞋',t:'晨間運動、Day 5 走訪',q:'1 套'},
+    {n:'睡衣',t:'',q:'1'},
+  ]},
+  { icon:'🧥', title:'外套（重要）', items:[
+    {n:'防水薄外套 / 風衣',t:'帛琉隨時突降大雨，船上擋風浪也需要',q:'1',s:1},
+    {n:'薄長袖外套',t:'飯店冷氣、飛機上用',q:'1'},
+  ]},
+  { icon:'☀️', title:'防曬 & 曬後修護', items:[
+    {n:'海洋友善物理防曬乳',t:'化學防曬入境帛琉罰 $1,000 USD！僅限氧化鋅 / 二氧化鈦成分',q:'1',s:1},
+    {n:'防曬護唇膏（含 SPF）',t:'海上風吹嘴唇容易曬裂',q:'1'},
+    {n:'蘆薈膠',t:'曬後急救修護，冰在冰箱敷效果更好',q:'1'},
+    {n:'保濕乳液',t:'曬後皮膚脫水，要大量補水',q:'1'},
+    {n:'寬帽沿帽子',t:'漁夫帽 > 棒球帽，要能遮脖子後面',q:'1'},
+    {n:'偏光太陽眼鏡',t:'海面反射極強',q:'1'},
+  ]},
+  { icon:'🤿', title:'浮潛 & 海上裝備', items:[
+    {n:'防水手機袋',t:'不帶相機下水的替代方案',q:'1'},
+    {n:'防水袋 / 夾鏈袋',t:'船上保護手機、錢包',q:'數個'},
+    {n:'水下相機 / GoPro',t:'含充電器 + 記憶卡',q:'選帶'},
+    {n:'快乾毛巾',t:'飯店可借，自帶更方便',q:'1'},
+  ]},
+  { icon:'🧴', title:'盥洗用品', items:[
+    {n:'牙膏 / 牙刷',t:'',q:'1'},
+    {n:'沐浴乳 / 洗髮精',t:'飯店有提供，自帶更安心',q:'1'},
+    {n:'保養品',t:'',q:''},
+    {n:'梳子 / 刮鬍刀',t:'',q:''},
+  ]},
+  { icon:'📱', title:'電子產品', items:[
+    {n:'手機 + 充電線',t:'帛琉 110V 兩孔扁插＝跟台灣一樣，免帶轉接頭',q:'1'},
+    {n:'行動電源',t:'出海整天無法充電，必帶！',q:'1',s:1},
+    {n:'耳機',t:'飛機上、飯店休息用',q:'1'},
+    {n:'相機充電器 + 記憶卡',t:'',q:'選帶'},
+  ]},
+  { icon:'💊', title:'醫療 & 健康', items:[
+    {n:'暈船藥',t:'連續兩天出海，強烈建議帶！',q:'1',s:1},
+    {n:'感冒藥 / 止痛藥',t:'',q:'各 1'},
+    {n:'胃藥 / 腸胃藥 / 止瀉藥',t:'飲食變化備用',q:''},
+    {n:'OK 繃',t:'',q:'數片'},
+    {n:'防蚊液',t:'島上蚊蟲',q:'1'},
+    {n:'個人慢性用藥',t:'如有需要',q:''},
+  ]},
+  { icon:'📦', title:'其他實用物品', items:[
+    {n:'大塑膠袋',t:'裝濕衣服、髒衣服分裝',q:'3–5 個'},
+    {n:'水壺',t:'環保 + 出海隨時補水',q:'1'},
+    {n:'零食 / 能量棒',t:'出海整天備用',q:'適量'},
+    {n:'摺疊購物袋',t:'Day 5 購物會用到',q:'1'},
+    {n:'行李秤 / 束帶',t:'回程避免超重（華航限重 23kg）',q:'1'},
+  ]},
+];
+
+/* ═══════════════════════════════════════
+   State
+   ═══════════════════════════════════════ */
+const K_DATA = 'palau_v3_data';
+const K_CHK  = 'palau_v3_chk';
+const K_COL  = 'palau_v3_col';
+
+let data, chk, collapsed;
+let undoStack = [];
+let toastTmr = null;
+let addingCat = null;
+
+function load() {
+  try {
+    const d = localStorage.getItem(K_DATA);
+    const c = localStorage.getItem(K_CHK);
+    const o = localStorage.getItem(K_COL);
+    data = d ? JSON.parse(d) : JSON.parse(JSON.stringify(DEFAULT));
+    chk = c ? JSON.parse(c) : {};
+    collapsed = o ? JSON.parse(o) : {};
+  } catch(e) {
+    data = JSON.parse(JSON.stringify(DEFAULT));
+    chk = {};
+    collapsed = {};
+  }
+}
+function save()  { try { localStorage.setItem(K_DATA, JSON.stringify(data)); } catch(e){} }
+function saveC() { try { localStorage.setItem(K_CHK, JSON.stringify(chk)); } catch(e){} }
+function saveO() { try { localStorage.setItem(K_COL, JSON.stringify(collapsed)); } catch(e){} }
+
+/* ═══════════════════════════════════════
+   Helpers
+   ═══════════════════════════════════════ */
+const id = (c,i) => `c${c}_i${i}`;
+const total = () => data.reduce((s,c) => s + c.items.length, 0);
+function checked() {
+  let n = 0;
+  data.forEach((c,ci) => c.items.forEach((_,ii) => { if (chk[id(ci,ii)]) n++; }));
+  return n;
+}
+function catChecked(ci) {
+  let n = 0;
+  data[ci].items.forEach((_,ii) => { if (chk[id(ci,ii)]) n++; });
+  return n;
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+const svgCheck = '<svg viewBox="0 0 16 16"><path d="M3.5 8.5L6.5 11.5L12.5 4.5"/></svg>';
+const svgX = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4.5 4.5L11.5 11.5M11.5 4.5L4.5 11.5"/></svg>';
+const svgChev = '<svg class="cat-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>';
+
+/* ═══════════════════════════════════════
+   Progress
+   ═══════════════════════════════════════ */
+function updateProgress() {
+  const t = total(), c = checked();
+  const pct = t > 0 ? Math.round(c / t * 100) : 0;
+  document.getElementById('pCount').textContent = `${c} / ${t}`;
+  const fill = document.getElementById('pFill');
+  fill.style.width = t > 0 ? pct + '%' : '0%';
+  const pctEl = document.getElementById('pPct');
+
+  if (pct === 100 && t > 0) {
+    fill.classList.add('done');
+    pctEl.classList.add('done');
+    pctEl.textContent = '🎉 準備完成！';
+  } else {
+    fill.classList.remove('done');
+    pctEl.classList.remove('done');
+    pctEl.textContent = pct + '%';
+  }
+
+  data.forEach((cat,ci) => {
+    const b = document.getElementById('b'+ci);
+    if (!b) return;
+    const cc = catChecked(ci);
+    b.textContent = cc + ' / ' + cat.items.length;
+    b.className = (cc === cat.items.length && cat.items.length > 0) ? 'cat-badge done' : 'cat-badge';
+  });
+}
+
+/* ═══════════════════════════════════════
+   Actions
+   ═══════════════════════════════════════ */
+function toggle(ci, ii, e) {
+  if (e) e.stopPropagation();
+  const k = id(ci,ii);
+  chk[k] = !chk[k];
+  saveC();
+
+  const el = document.getElementById(k);
+  if (el) {
+    el.classList.toggle('checked', chk[k]);
+    el.querySelector('.ck').innerHTML = chk[k] ? svgCheck : '';
+  }
+  updateProgress();
+
+  if (checked() === total() && total() > 0) setTimeout(confetti, 350);
+}
+
+function toggleCat(ci) {
+  collapsed[ci] = !collapsed[ci];
+  saveO();
+  const el = document.getElementById('cat'+ci);
+  if (!el) return;
+  const body = el.querySelector('.cat-body');
+
+  if (collapsed[ci]) {
+    body.style.maxHeight = body.scrollHeight + 'px';
+    requestAnimationFrame(() => { el.classList.add('closed'); body.style.maxHeight = '0'; });
+  } else {
+    el.classList.remove('closed');
+    body.style.maxHeight = body.scrollHeight + 'px';
+    body.addEventListener('transitionend', () => { body.style.maxHeight = ''; }, { once: true });
+  }
+}
+
+function delItem(ci, ii, e) {
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  const item = data[ci].items[ii];
+  const was = chk[id(ci,ii)] || false;
+  const wrap = document.getElementById('w'+ci+'_'+ii);
+  if (!wrap) return;
+
+  wrap.classList.add('removing');
+  wrap.addEventListener('animationend', () => {
+    data[ci].items.splice(ii, 1);
+    const nc = {};
+    Object.keys(chk).forEach(k => {
+      const m = k.match(/^c(\d+)_i(\d+)$/);
+      if (!m) return;
+      const c = +m[1], i = +m[2];
+      if (c === ci) { if (i < ii) nc[id(c,i)] = chk[k]; else if (i > ii) nc[id(c,i-1)] = chk[k]; }
+      else nc[k] = chk[k];
+    });
+    chk = nc;
+    save(); saveC();
+    undoStack.push({ci, ii, item, was});
+    toast('已刪除「' + item.n + '」');
+    render();
+  }, { once: true });
+}
+
+/* ═══════════════════════════════════════
+   Add item
+   ═══════════════════════════════════════ */
+function showAdd(ci, e) { if (e) e.stopPropagation(); addingCat = ci; render(); }
+function hideAdd(ci, e) { if (e) e.stopPropagation(); addingCat = null; render(); }
+function doAdd(ci, e) {
+  if (e) { e.stopPropagation(); e.preventDefault(); }
+  const inp = document.getElementById('ai'+ci);
+  if (!inp) return;
+  const v = inp.value.trim();
+  if (!v) { inp.focus(); return; }
+  data[ci].items.push({n:v, t:'', q:'', custom:1});
+  save(); addingCat = null; render();
+  const ni = data[ci].items.length - 1;
+  const w = document.getElementById('w'+ci+'_'+ni);
+  if (w) w.classList.add('adding');
+  updateProgress();
+}
+function addKey(ci, e) { if (e.key==='Enter') doAdd(ci,e); if (e.key==='Escape') hideAdd(ci,e); }
+
+/* ═══════════════════════════════════════
+   Toast / Undo
+   ═══════════════════════════════════════ */
+function toast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(() => { t.classList.remove('show'); undoStack = []; }, 5000);
+}
+
+function undoDelete() {
+  if (!undoStack.length) return;
+  const {ci, ii, item, was} = undoStack.pop();
+  data[ci].items.splice(ii, 0, item);
+  const nc = {};
+  Object.keys(chk).forEach(k => {
+    const m = k.match(/^c(\d+)_i(\d+)$/);
+    if (!m) return;
+    const c = +m[1], i = +m[2];
+    if (c === ci && i >= ii) nc[id(c,i+1)] = chk[k]; else nc[k] = chk[k];
+  });
+  if (was) nc[id(ci,ii)] = true;
+  chk = nc;
+  save(); saveC();
+  document.getElementById('toast').classList.remove('show');
+  clearTimeout(toastTmr);
+  render();
+}
+
+/* ═══════════════════════════════════════
+   Reset
+   ═══════════════════════════════════════ */
+function resetChk() {
+  if (!confirm('確定要清除所有勾選嗎？')) return;
+  chk = {}; saveC(); render();
+}
+function resetAll() {
+  if (!confirm('確定要恢復為預設清單嗎？\n（會清除所有自訂項目和勾選）')) return;
+  data = JSON.parse(JSON.stringify(DEFAULT));
+  chk = {}; collapsed = {}; addingCat = null;
+  save(); saveC(); saveO(); render();
+}
+
+/* ═══════════════════════════════════════
+   Confetti
+   ═══════════════════════════════════════ */
+function confetti() {
+  const box = document.createElement('div');
+  box.className = 'confetti-box';
+  document.body.appendChild(box);
+  const colors = ['#0EA5E9','#22C55E','#F59E0B','#EF4444','#8B5CF6','#EC4899','#14B8A6'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-p';
+    const sz = 6 + Math.random() * 7;
+    Object.assign(p.style, {
+      left: Math.random()*100+'%',
+      background: colors[Math.random()*colors.length|0],
+      animationDelay: Math.random()*0.8+'s',
+      animationDuration: (2+Math.random()*1.5)+'s',
+      width: sz+'px', height: sz+'px',
+      borderRadius: Math.random()>0.5?'50%':'2px',
+    });
+    box.appendChild(p);
+  }
+  setTimeout(() => box.remove(), 4000);
+}
+
+/* ═══════════════════════════════════════
+   Swipe to delete (touch)
+   ═══════════════════════════════════════ */
+let swipeEl=null, swipeX0=0, swiping=false;
+
+document.addEventListener('touchstart', e => {
+  const wrap = e.target.closest('.item-swipe-wrap');
+  if (!wrap) return;
+  swipeEl = wrap;
+  swipeX0 = e.touches[0].clientX;
+  swiping = false;
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  if (!swipeEl) return;
+  const dx = e.touches[0].clientX - swipeX0;
+  if (dx < -10) swiping = true;
+  if (!swiping) return;
+  const x = Math.min(0, Math.max(-80, dx));
+  swipeEl.querySelector('.item').style.transform = `translateX(${x}px)`;
+  swipeEl.classList.toggle('swiping', x < -5);
+}, { passive: true });
+
+document.addEventListener('touchend', () => {
+  if (!swipeEl) return;
+  const item = swipeEl.querySelector('.item');
+  if (!item) { swipeEl = null; return; }
+  const tx = parseFloat(item.style.transform.replace(/[^-\d.]/g,'')) || 0;
+
+  if (tx < -50) {
+    // Trigger delete
+    const m = swipeEl.id.match(/^w(\d+)_(\d+)$/);
+    if (m) delItem(+m[1], +m[2]);
+  } else {
+    item.style.transform = '';
+    swipeEl.classList.remove('swiping');
+  }
+  swipeEl = null;
+  swiping = false;
+});
+
+/* ═══════════════════════════════════════
+   Sticky progress
+   ═══════════════════════════════════════ */
+const obs = new IntersectionObserver(([e]) => {
+  document.getElementById('progressWrap').classList.toggle('stuck', !e.isIntersecting);
+}, { threshold: [1] });
+
+/* ═══════════════════════════════════════
+   Render
+   ═══════════════════════════════════════ */
+function render() {
+  const app = document.getElementById('app');
+  let h = '';
+
+  data.forEach((cat, ci) => {
+    const cc = catChecked(ci), ct = cat.items.length;
+    const cls = collapsed[ci] ? ' closed' : '';
+    h += `<div class="cat${cls}" id="cat${ci}">`;
+    h += `<div class="cat-head" onclick="toggleCat(${ci})">`;
+    h += `<div class="cat-left"><span class="cat-icon">${cat.icon}</span><span class="cat-title">${esc(cat.title)}</span></div>`;
+    h += `<div class="cat-right"><span class="${cc===ct&&ct>0?'cat-badge done':'cat-badge'}" id="b${ci}">${cc} / ${ct}</span>${svgChev}</div>`;
+    h += `</div>`;
+
+    h += `<div class="cat-body"${collapsed[ci]?' style="max-height:0;opacity:0"':''}>`;
+
+    if (ct === 0) {
+      h += `<div class="empty-state"><span>📭</span>沒有項目，點下方新增</div>`;
+    }
+
+    cat.items.forEach((it, ii) => {
+      const k = id(ci,ii), ck = chk[k]||false;
+      h += `<div class="item-swipe-wrap" id="w${ci}_${ii}">`;
+      h += `<div class="item-swipe-bg">刪除</div>`;
+      h += `<div class="item${ck?' checked':''}${it.s?' star':''}" id="${k}" onclick="toggle(${ci},${ii},event)">`;
+      h += `<div class="ck">${ck?svgCheck:''}</div>`;
+      h += `<div class="i-body">`;
+      h += `<div class="i-name">${it.s?'<span class="star-dot">★</span>':''}${esc(it.n)}</div>`;
+      if (it.t) h += `<div class="i-note">${esc(it.t)}</div>`;
+      h += `</div>`;
+      h += `<div class="i-right">`;
+      if (it.q) h += `<span class="i-qty">${esc(it.q)}</span>`;
+      h += `<button class="i-del" onclick="delItem(${ci},${ii},event)" aria-label="刪除${esc(it.n)}">${svgX}</button>`;
+      h += `</div></div></div>`;
+    });
+
+    if (addingCat === ci) {
+      h += `<div class="add-form" onclick="event.stopPropagation()">`;
+      h += `<input id="ai${ci}" type="text" placeholder="輸入物品名稱…" onkeydown="addKey(${ci},event)" autocomplete="off" enterkeyhint="done">`;
+      h += `<button class="add-btn ok" onclick="doAdd(${ci},event)">新增</button>`;
+      h += `<button class="add-btn no" onclick="hideAdd(${ci},event)">取消</button>`;
+      h += `</div>`;
+    } else {
+      h += `<div class="add-row" onclick="showAdd(${ci},event)"><div class="add-plus">+</div><span class="add-label">新增項目</span></div>`;
+    }
+
+    h += `</div></div>`;
+  });
+
+  // Info cards
+  h += `<div class="info red"><div class="info-title">❌ 不要帶 / 入境禁止</div>`;
+  h += `<div class="info-line"><span>✗</span><span>化學防曬乳 → 罰 $1,000 USD 並沒收</span></div>`;
+  h += `<div class="info-line"><span>✗</span><span>動植物、水果、肉類、檳榔 → 禁止入境</span></div>`;
+  h += `<div class="info-line"><span>✗</span><span>超過 1 包拆封香菸（限 19 支）</span></div>`;
+  h += `<div class="info-line"><span>✗</span><span>超過 2 公升酒 → 超過需申報</span></div>`;
+  h += `<div class="info-line"><span>✗</span><span>超過 $10,000 USD 現金 → 超過需申報</span></div>`;
+  h += `<div class="info-line"><span>✗</span><span>轉接插頭 → 帛琉 110V 兩孔扁插跟台灣一樣，不用帶</span></div>`;
+  h += `</div>`;
+
+  h += `<div class="info yellow"><div class="info-title">📌 行前提醒</div>`;
+  h += `<div class="info-line"><span>✈️</span><span>華航 CI028 → 2/28 桃園 T1 出發</span></div>`;
+  h += `<div class="info-line"><span>🕐</span><span>帛琉時間比台灣快 1 小時</span></div>`;
+  h += `<div class="info-line"><span>🌡️</span><span>年均溫 28–32°C，豔陽高照但隨時會下大雨</span></div>`;
+  h += `<div class="info-line"><span>💰</span><span>帛琉以美金消費，餐廳小費約 10%</span></div>`;
+  h += `<div class="info-line"><span>🤿</span><span>浮潛提供：面鏡、呼吸管、救生衣（蛙鞋需自租 $6/日）</span></div>`;
+  h += `<div class="info-line"><span>📞</span><span>領隊 蘇榆婷 Shelly：0933-847-655</span></div>`;
+  h += `<div class="info-line"><span>🏨</span><span>帛琉大飯店 Palasia Hotel：(680) 488-8888</span></div>`;
+  h += `<div class="info-line"><span>🏛️</span><span>駐帛琉大使館：(680) 488-8150</span></div>`;
+  h += `</div>`;
+
+  h += `<div class="actions">`;
+  h += `<button class="act-btn" onclick="resetChk()">清除所有勾選</button>`;
+  h += `<button class="act-btn warn" onclick="resetAll()">恢復預設清單</button>`;
+  h += `</div>`;
+
+  app.innerHTML = h;
+  updateProgress();
+
+  if (addingCat !== null) {
+    const inp = document.getElementById('ai'+addingCat);
+    if (inp) inp.focus();
+  }
+}
+
+/* ═══════════════════════════════════════
+   Init
+   ═══════════════════════════════════════ */
+load();
+render();
+obs.observe(document.getElementById('sentinel'));
+</script>
+</body>
+</html>
